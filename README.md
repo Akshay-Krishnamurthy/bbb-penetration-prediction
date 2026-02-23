@@ -16,7 +16,7 @@ and which exact structural features are causing BBB failure (SHAP).
 The result is not a prediction — it's a full CNS drug profile.
 
 ## 📌 Overview
-📐 [**View Full Pipeline Diagram →**](https://htmlpreview.github.io/?https://github.com/Akshay-Krishnamurthy/bbb-penetration-prediction/blob/main/BBB_Pipeline_Diagram.html)
+📐 [**View Full Pipeline Diagram →**](https://akshay-krishnamurthy.github.io/bbb-penetration-prediction/BBB_Pipeline_Diagram.html)
 
 A **full end-to-end computational pipeline** for predicting Blood-Brain Barrier (BBB) permeability of drug-like compounds, combining:
 
