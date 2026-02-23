@@ -1,0 +1,15 @@
+SMILES,Name,Reference
+CN1CCC[C@H]1c2cccnc2,Nicotine,Known BBB+
+c1ccc2[nH]ccc2c1,Indole,Known BBB+
+CCc1ccc(N(C)C)cc1,DMAE-analog,Known BBB+
+c1ccc(-c2ccncc2)cc1,4-Phenylpyridine,Known BBB+
+C1CCNCC1,Piperidine,Known BBB+
+Cc1ccc(C(C)(C)C)cc1,tButyltoluene,Known BBB+
+CCN(CC)CCOC(=O)c1ccc(N)cc1,Procaine,Moderate BBB
+CC(=O)Oc1ccccc1C(=O)O,Aspirin,Known BBB-
+O=C(O)c1ccc(N)cc1,4-Aminobenzoic acid,Known BBB-
+OC(=O)CCCCC(=O)O,Adipic acid,Known BBB-
+O=C(O)c1ccccc1O,Salicylic acid,Known BBB-
+NC(=O)c1cccnc1,Nicotinamide,Moderate BBB
+COc1ccc2[nH]cc(CC(N)C(=O)O)c2c1,5-Methoxytryptophan,Test
+O=C(NCCc1ccc(O)cc1)CCc1ccc(O)cc1,Bis-tyrosine amide,Test
