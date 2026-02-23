@@ -124,7 +124,7 @@ Run all cells top to bottom. Cell 1 installs all dependencies automatically (~3â
 ### Option 2: Local Setup
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/bbb-penetration-prediction.git
+git clone https://github.com/Akshay-Krishnamurthy/bbb-penetration-prediction.git
 cd bbb-penetration-prediction
 pip install -r requirements.txt
 jupyter notebook Blood_Brain_Barrier_Penetration_Prediction.ipynb
