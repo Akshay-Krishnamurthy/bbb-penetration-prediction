@@ -7,6 +7,13 @@
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Akshay-Krishnamurthy/bbb-penetration-prediction/blob/main/Blood_Brain_Barrier_Penetration_Prediction.ipynb)
 
 ---
+## 🎯 Summary
+Most BBB predictors give a binary label. This pipeline goes further:
+it tells you HOW MUCH free drug reaches the brain target (Kp,uu,brain),
+whether P-gp is actively pumping your compound out (NER classification),
+what happens when a co-drug inhibits that efflux (DDI simulation),
+and which exact structural features are causing BBB failure (SHAP).
+The result is not a prediction — it's a full CNS drug profile.
 
 ## 📌 Overview
 
