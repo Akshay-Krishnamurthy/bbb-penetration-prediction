@@ -4,7 +4,7 @@
 [![RDKit](https://img.shields.io/badge/RDKit-Cheminformatics-green.svg)](https://www.rdkit.org/)
 [![scikit-learn](https://img.shields.io/badge/scikit--learn-ML-orange.svg)](https://scikit-learn.org/)
 [![XGBoost](https://img.shields.io/badge/XGBoost-Boosting-red.svg)](https://xgboost.readthedocs.io/)
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/YOUR_USERNAME/bbb-penetration-prediction/blob/main/Blood_Brain_Barrier_Penetration_Prediction.ipynb)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Akshay-Krishnamurthy/bbb-penetration-prediction/blob/main/Blood_Brain_Barrier_Penetration_Prediction.ipynb)
 
 ---
 
