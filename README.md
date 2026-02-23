@@ -240,7 +240,7 @@ dC_brain/dt  =  (CL_passive/Vb) × Cp - (CL_passive + CL_efflux)/Vb × Cb
 
 ## 👤 Author
 
-**[Your Name]**
+**Akshay Krishnamurthy Hegde**
 - Field: Computational Drug Discovery / Cheminformatics
 - Tools: RDKit, scikit-learn, XGBoost, SHAP, PBPK modelling
 
