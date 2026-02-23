@@ -116,7 +116,7 @@ All models trained on the **BBBP benchmark dataset** (DeepChem, ~2000 compounds)
 Click the badge above or open directly:
 
 ```
-https://colab.research.google.com/github/YOUR_USERNAME/bbb-penetration-prediction/blob/main/Blood_Brain_Barrier_Penetration_Prediction.ipynb
+https://colab.research.google.com/github/Akshay-Krishnamurthy/bbb-penetration-prediction/blob/main/Blood_Brain_Barrier_Penetration_Prediction.ipynb
 ```
 
 Run all cells top to bottom. Cell 1 installs all dependencies automatically (~3–4 min on first run).
