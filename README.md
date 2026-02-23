@@ -235,6 +235,11 @@ dC_brain/dt  =  (CL_passive/Vb) × Cp - (CL_passive + CL_efflux)/Vb × Cb
 3. **Rodgers, T. & Rowland, M.** (2006). *Mechanistic approaches to volume of distribution predictions*. J. Pharm. Sci., 95(6), 1238–1257.
 4. **Fridén, M. et al.** (2010). *Prediction of brain unbound fraction using in vitro measurement*. Drug Metab. Dispos., 38(6), 1090–1099.
 5. **BBBP Dataset** — MoleculeNet benchmark (DeepChem).
+6. **Martins, I.F. et al.** (2012). *A Bayesian Approach to in Silico Blood-Brain Barrier Penetration Modeling.* J. Chem. Inf. Model., 52(6), 1686–1697.
+   — **Primary source of the BBBP benchmark dataset used for training.**
+7. **Wu, Z. et al.** (2018). *MoleculeNet: A Benchmark for Molecular Machine Learning.* Chemical Science, 9(2), 513–530.
+   — **MoleculeNet benchmark suite (BBBP is part of this collection).**
+8. **DeepChem** (https://deepchem.io) — Open-source platform hosting the BBBP dataset used in this pipeline.
 
 ---
 
