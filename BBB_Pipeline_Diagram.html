@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Structure-Brain Link (SBL) — Pipeline Architecture</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;600&family=Barlow+Condensed:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0f1e;
+    --surface: #0e1628;
+    --card: #111d35;
+    --border: #1e3058;
+    --accent1: #00c9a7;
+    --accent2: #4f8ef7;
+    --accent3: #f7a94f;
+    --accent4: #e05c8a;
+    --accent5: #a78bfa;
+    --text: #e8edf5;
+    --muted: #7a90b5;
+    --white: #ffffff;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Barlow Condensed', sans-serif;
+    min-height: 100vh;
+    padding: 40px 20px 60px;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    text-align: center;
+    margin-bottom: 48px;
+    position: relative;
+  }
+  .header::before {
+    content: '';
+    display: block;
+    width: 60px; height: 3px;
+    background: var(--accent1);
+    margin: 0 auto 20px;
+  }
+  .header .label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 4px;
+    color: var(--accent1);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .header h1 {
+    font-family: 'EB Garamond', serif;
+    font-size: clamp(28px, 4vw, 48px);
+    font-weight: 600;
+    color: var(--white);
+    line-height: 1.2;
+    margin-bottom: 10px;
+  }
+  .header h1 em { color: var(--accent1); font-style: italic; }
+  .header .subtitle {
+    font-size: 15px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    font-weight: 300;
+  }
+
+  /* ── OUTER WRAPPER ── */
+  .pipeline {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  /* ── STAGE ROW ── */
+  .stage {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 0;
+    position: relative;
+  }
+
+  .stage-label {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: center;
+    padding: 24px 24px 24px 0;
+    border-right: 2px solid var(--border);
+    position: relative;
+  }
+  .stage-label::after {
+    content: '';
+    position: absolute;
+    right: -6px; top: 50%;
+    transform: translateY(-50%);
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--border);
+    border: 2px solid var(--bg);
+  }
+  .stage-number {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    margin-bottom: 4px;
+  }
+  .stage-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+    text-align: right;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    line-height: 1.3;
+  }
+
+  .stage-content {
+    padding: 24px 0 24px 32px;
+  }
+
+  /* ── CONNECTOR ARROW ── */
+  .arrow-row {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+  }
+  .arrow-line {
+    border-right: 2px solid var(--border);
+    position: relative;
+  }
+  .arrow-body {
+    padding-left: 32px;
+    display: flex;
+    align-items: center;
+    height: 32px;
+    gap: 8px;
+  }
+  .arrow-body::before {
+    content: '';
+    display: block;
+    width: 40px; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--border) 50%, var(--accent1));
+  }
+  .arrow-body::after {
+    content: '▼';
+    font-size: 10px;
+    color: var(--accent1);
+    margin-left: -4px;
+  }
+  .arrow-note {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+
+  /* ── CARDS ── */
+  .cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 20px;
+    flex: 1;
+    min-width: 160px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+  }
+  .card.teal::before   { background: var(--accent1); }
+  .card.blue::before   { background: var(--accent2); }
+  .card.orange::before { background: var(--accent3); }
+  .card.pink::before   { background: var(--accent4); }
+  .card.purple::before { background: var(--accent5); }
+  .card.gold::before   { background: linear-gradient(90deg, var(--accent3), #f7d44f); }
+
+  .card-icon {
+    font-size: 20px;
+    margin-bottom: 8px;
+    display: block;
+  }
+  .card-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--white);
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+  }
+  .card-items {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .card-items li {
+    font-size: 11.5px;
+    color: var(--muted);
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    line-height: 1.4;
+  }
+  .card-items li::before {
+    content: '–';
+    color: var(--border);
+    flex-shrink: 0;
+  }
+  .card-items li strong { color: var(--text); font-weight: 600; }
+
+  .card-badge {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    padding: 2px 7px;
+    border-radius: 3px;
+    margin-top: 8px;
+    letter-spacing: 1px;
+  }
+  .badge-teal   { background: rgba(0,201,167,0.15); color: var(--accent1); border: 1px solid rgba(0,201,167,0.3); }
+  .badge-blue   { background: rgba(79,142,247,0.15); color: var(--accent2); border: 1px solid rgba(79,142,247,0.3); }
+  .badge-orange { background: rgba(247,169,79,0.15); color: var(--accent3); border: 1px solid rgba(247,169,79,0.3); }
+  .badge-pink   { background: rgba(224,92,138,0.15); color: var(--accent4); border: 1px solid rgba(224,92,138,0.3); }
+  .badge-purple { background: rgba(167,139,250,0.15); color: var(--accent5); border: 1px solid rgba(167,139,250,0.3); }
+
+  /* ── WIDE CARD ── */
+  .card-wide {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .card-wide-cell {
+    background: var(--card);
+    padding: 14px 18px;
+    position: relative;
+  }
+  .cell-label {
+    font-size: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .cell-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--white);
+    margin-bottom: 4px;
+  }
+  .cell-sub {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.4;
+  }
+
+  /* ── FORMULA BOX ── */
+  .formula-box {
+    background: rgba(0,201,167,0.05);
+    border: 1px solid rgba(0,201,167,0.2);
+    border-radius: 8px;
+    padding: 18px 24px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--accent1);
+    width: 100%;
+    line-height: 2;
+  }
+  .formula-box .formula-title {
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--muted);
+    margin-bottom: 10px;
+    font-family: 'Barlow Condensed', sans-serif;
+    text-transform: uppercase;
+  }
+  .formula-line { display: flex; align-items: center; gap: 12px; }
+  .formula-arrow { color: var(--muted); }
+  .formula-em { color: var(--accent3); }
+  .formula-comment { color: var(--muted); font-size: 11px; }
+
+  /* ── OUTPUT GRID ── */
+  .output-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    width: 100%;
+  }
+  @media (max-width: 768px) {
+    .output-grid { grid-template-columns: 1fr 1fr; }
+    .stage { grid-template-columns: 100px 1fr; }
+    .arrow-row { grid-template-columns: 100px 1fr; }
+    .stage-label { padding: 16px 12px 16px 0; }
+    .stage-content { padding: 16px 0 16px 16px; }
+  }
+  .output-item {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px 14px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .output-item .oi-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+  .output-item .oi-text .oi-name { font-size: 12px; font-weight: 700; color: var(--white); margin-bottom: 3px; }
+  .output-item .oi-text .oi-desc { font-size: 11px; color: var(--muted); line-height: 1.4; }
+
+  /* ── INPUT SPECIAL ── */
+  .input-box {
+    background: linear-gradient(135deg, #0a2540, #0e1f3e);
+    border: 1px solid var(--accent2);
+    border-radius: 10px;
+    padding: 20px 24px;
+    display: flex;
+    gap: 24px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .smiles-display {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    background: rgba(79,142,247,0.1);
+    border: 1px solid rgba(79,142,247,0.25);
+    border-radius: 6px;
+    padding: 8px 14px;
+    color: var(--accent2);
+    flex: 1;
+    min-width: 240px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .input-meta { display: flex; flex-direction: column; gap: 6px; }
+  .input-meta-item { display: flex; gap: 8px; align-items: center; }
+  .input-meta-item .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .input-meta-item span { font-size: 12px; color: var(--muted); }
+  .input-meta-item strong { color: var(--text); }
+
+  /* ── MODEL PERF ── */
+  .model-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    width: 100%;
+  }
+  .model-chip {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 16px;
+    flex: 1;
+    min-width: 120px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .model-chip .mc-name { font-size: 12px; font-weight: 700; color: var(--white); }
+  .model-chip .mc-auc  { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--accent1); }
+  .model-chip .mc-note { font-size: 10px; color: var(--muted); }
+  .model-chip.best { border-color: var(--accent1); background: rgba(0,201,167,0.07); }
+  .model-chip.best .mc-name::after { content: ' 🏆'; }
+
+  /* ── SECTION HEADING ── */
+  .sec-heading {
+    font-size: 11px;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 3px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  /* ── TIER BADGE ── */
+  .tier-strip {
+    display: flex;
+    gap: 0;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    width: 100%;
+    margin-bottom: 12px;
+  }
+  .tier-cell {
+    flex: 1;
+    padding: 10px 14px;
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .tier-cell:last-child { border-right: none; }
+  .tier-level { font-size: 10px; font-family: 'JetBrains Mono', monospace; color: var(--muted); }
+  .tier-title { font-size: 12px; font-weight: 700; color: var(--white); }
+  .tier-out   { font-size: 10.5px; color: var(--muted); margin-top: 2px; }
+
+  /* ── WHY EXCEPTIONAL ── */
+  .exceptional-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    width: 100%;
+  }
+  @media (max-width: 600px) { .exceptional-grid { grid-template-columns: 1fr; } }
+  .exc-item {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 18px;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+  .exc-icon { font-size: 22px; flex-shrink: 0; }
+  .exc-title { font-size: 13px; font-weight: 700; color: var(--white); margin-bottom: 5px; }
+  .exc-desc  { font-size: 11.5px; color: var(--muted); line-height: 1.5; }
+  .exc-desc strong { color: var(--accent1); }
+
+  /* ── FOOTER ── */
+  .fig-caption {
+    text-align: center;
+    margin-top: 48px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+  }
+  .fig-caption p {
+    font-family: 'EB Garamond', serif;
+    font-size: 13px;
+    font-style: italic;
+    color: var(--muted);
+    max-width: 800px;
+    margin: 0 auto;
+    line-height: 1.7;
+  }
+  .fig-caption .fig-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--accent1);
+    letter-spacing: 3px;
+    margin-bottom: 8px;
+    font-style: normal;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="label">Structure-Brain Link (SBL) · Computational Drug Discovery</div>
+  <h1>Structure-Brain Link<br><em>(SBL) Pipeline</em></h1>
+  <div class="subtitle">BBB Permeability · Molecular Descriptors · ML · Mechanistic PK · PBPK Simulation</div>
+</div>
+
+<div class="pipeline">
+
+  <!-- ══════════════════════════════════════════
+       STAGE 0 — INPUT
+  ══════════════════════════════════════════ -->
+  <div class="stage">
+    <div class="stage-label">
+      <div class="stage-number">STAGE 0</div>
+      <div class="stage-name">Input</div>
+    </div>
+    <div class="stage-content">
+      <div class="input-box">
+        <div>
+          <div class="sec-heading">Query Compound</div>
+          <div class="smiles-display">CN1CCC[C@H]1c2cccnc2  ← SMILES string (e.g. Nicotine)</div>
+        </div>
+        <div class="input-meta">
+          <div class="input-meta-item">
+            <div class="dot" style="background:var(--accent1)"></div>
+            <span>Format: <strong>SMILES string</strong> (CSV upload)</span>
+          </div>
+          <div class="input-meta-item">
+            <div class="dot" style="background:var(--accent2)"></div>
+            <span>Training: <strong>BBBP + B3DB Merged</strong> ~7,800+ compounds (deduplicated)</span>
+          </div>
+          <div class="input-meta-item">
+            <div class="dot" style="background:var(--accent3)"></div>
+            <span>Source 1: <strong>Martins et al. 2012</strong> · MoleculeNet · DeepChem (BBBP)</span>
+          </div>
+          <div class="input-meta-item">
+            <div class="dot" style="background:var(--accent5)"></div>
+            <span>Source 2: <strong>Meng et al. 2021</strong> · B3DB (theochem/B3DB) · Sci. Data 8, 289</span>
+          </div>
+          <div class="input-meta-item">
+            <div class="dot" style="background:var(--accent4)"></div>
+            <span>Label: <strong>BBB+</strong> (penetrant) / <strong>BBB−</strong> (non-penetrant)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="arrow-row"><div class="arrow-line"></div><div class="arrow-body"><span class="arrow-note">RDKit mol object</span></div></div>
+
+  <!-- ══════════════════════════════════════════
+       STAGE 1 — DESCRIPTOR CALCULATION
+  ══════════════════════════════════════════ -->
+  <div class="stage">
+    <div class="stage-label">
+      <div class="stage-number">STAGE 1</div>
+      <div class="stage-name">Descriptor<br>Calculation</div>
+    </div>
+    <div class="stage-content">
+      <div class="cards">
+        <div class="card teal">
+          <span class="card-icon">⚗️</span>
+          <div class="card-title">Class A · Physicochemical</div>
+          <ul class="card-items">
+            <li><strong>MW, ExactMW</strong> — molecular size</li>
+            <li><strong>LogP</strong> — lipophilicity (Crippen)</li>
+            <li><strong>TPSA</strong> — polar surface area</li>
+            <li><strong>HBD / HBA</strong> — H-bond donors/acceptors</li>
+            <li><strong>QED</strong> — drug-likeness score</li>
+            <li><strong>BBB Score</strong> — Gupta et al. 2019 (0–6)</li>
+            <li><strong>CNS MPO</strong> — Pfizer Wager 2010 (0–6)</li>
+            <li><strong>Derived:</strong> TPSA/MW, LogP/TPSA, MW/HeavyAtom</li>
+          </ul>
+          <span class="card-badge badge-teal">~14 features</span>
+        </div>
+        <div class="card blue">
+          <span class="card-icon">🕸️</span>
+          <div class="card-title">Class B · Topological</div>
+          <ul class="card-items">
+            <li><strong>Chi indices</strong> (0–3n, 0–1v) — connectivity</li>
+            <li><strong>Kappa 1,2,3</strong> — molecular shape</li>
+            <li><strong>BertzCT, BalabanJ</strong> — complexity</li>
+            <li><strong>Ring counts</strong> — aromatic, aliphatic, saturated</li>
+            <li><strong>Amide bonds, Spiro, Bridgehead</strong></li>
+            <li><strong>Stereocenters, NHOHCount, NOCount</strong></li>
+          </ul>
+          <span class="card-badge badge-blue">~25 features</span>
+        </div>
+        <div class="card orange">
+          <span class="card-icon">⚡</span>
+          <div class="card-title">Class C · Electrostatic</div>
+          <ul class="card-items">
+            <li><strong>MaxPartialCharge, MinPartialCharge</strong></li>
+            <li><strong>MaxAbsCharge, MinAbsCharge</strong></li>
+            <li><strong>NumValenceElectrons</strong></li>
+            <li><strong>LabuteASA</strong> — accessible surface area</li>
+            <li><strong>PEOE_VSA 1–3</strong> — charge-weighted VSA</li>
+            <li><strong>SMR_VSA, SlogP_VSA</strong> — polarisability VSA</li>
+          </ul>
+          <span class="card-badge badge-orange">~13 features</span>
+        </div>
+        <div class="card pink">
+          <span class="card-icon">🔵</span>
+          <div class="card-title">Class D · Binary Flags</div>
+          <ul class="card-items">
+            <li><strong>Lipinski violations</strong> (0–4) + pass flag</li>
+            <li><strong>Ionization class</strong> — basic / acidic / zwitterionic / neutral (one-hot)</li>
+            <li><strong>Functional groups</strong> — amide, amine, alcohol, carboxyl, sulfone, halogen, aromatic N</li>
+          </ul>
+          <span class="card-badge badge-pink">~12 features</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="arrow-row"><div class="arrow-line"></div><div class="arrow-body"><span class="arrow-note">64 raw features → feature selection</span></div></div>
+
+  <!-- ══════════════════════════════════════════
+       STAGE 2 — FEATURE SELECTION
+  ══════════════════════════════════════════ -->
+  <div class="stage">
+    <div class="stage-label">
+      <div class="stage-number">STAGE 2</div>
+      <div class="stage-name">Feature<br>Selection</div>
+    </div>
+    <div class="stage-content">
+      <div class="card-wide">
+        <div class="card-wide-cell">
+          <div class="cell-label">Step 1</div>
+          <div class="cell-value">Variance Filter</div>
+          <div class="cell-sub">Remove near-zero variance features<br><strong style="color:var(--accent1)">threshold = 0.01</strong></div>
+        </div>
+        <div class="card-wide-cell">
+          <div class="cell-label">Step 2</div>
+          <div class="cell-value">Correlation Filter</div>
+          <div class="cell-sub">Remove highly co-linear pairs<br><strong style="color:var(--accent1)">|r| &gt; 0.90 cut-off</strong></div>
+        </div>
+        <div class="card-wide-cell">
+          <div class="cell-label">Step 3</div>
+          <div class="cell-value">Mutual Information</div>
+          <div class="cell-sub">Rank features by MI with BBB label<br><strong style="color:var(--accent1)">Top-40, MI &gt; 0.005</strong></div>
+        </div>
+        <div class="card-wide-cell">
+          <div class="cell-label">Step 4</div>
+          <div class="cell-value">VIF Check</div>
+          <div class="cell-sub">Variance Inflation Factor audit<br><strong style="color:var(--accent1)">multicollinearity flag</strong></div>
+        </div>
+        <div class="card-wide-cell">
+          <div class="cell-label">Result</div>
+          <div class="cell-value" style="color:var(--accent1)">~35–40 features</div>
+          <div class="cell-sub">Imputed (median) + StandardScaled for LR</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="arrow-row"><div class="arrow-line"></div><div class="arrow-body"><span class="arrow-note">selected feature matrix X</span></div></div>
+
+  <!-- ══════════════════════════════════════════
+       STAGE 3 — EDA
+  ══════════════════════════════════════════ -->
+  <div class="stage">
+    <div class="stage-label">
+      <div class="stage-number">STAGE 3</div>
+      <div class="stage-name">EDA &amp;<br>Statistics</div>
+    </div>
+    <div class="stage-content">
+      <div class="cards">
+        <div class="card purple">
+          <span class="card-icon">📊</span>
+          <div class="card-title">Mann-Whitney U Test</div>
+          <ul class="card-items">
+            <li>Two-sided test per descriptor</li>
+            <li>BBB+ vs BBB− group comparison</li>
+            <li>Significance: *** p&lt;0.001, ** p&lt;0.01, * p&lt;0.05</li>
+          </ul>
+        </div>
+        <div class="card purple">
+          <span class="card-icon">📈</span>
+          <div class="card-title">Point-Biserial Correlation</div>
+          <ul class="card-items">
+            <li>r_pb between each descriptor and BBB label</li>
+            <li>Direction: promotes (+) vs inhibits (−) BBB+</li>
+            <li>TPSA is consistently top negative predictor</li>
+          </ul>
+        </div>
+        <div class="card purple">
+          <span class="card-icon">🗺️</span>
+          <div class="card-title">Correlation Heatmap</div>
+          <ul class="card-items">
+            <li>Pearson r matrix for top-15 features</li>
+            <li>Identifies collinear descriptor clusters</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="arrow-row"><div class="arrow-line"></div><div class="arrow-body"><span class="arrow-note">10-fold stratified CV</span></div></div>
+
+  <!-- ══════════════════════════════════════════
+       STAGE 4 — MACHINE LEARNING
+  ══════════════════════════════════════════ -->
+  <div class="stage">
+    <div class="stage-label">
+      <div class="stage-number">STAGE 4</div>
+      <div class="stage-name">ML Model<br>Training</div>
+    </div>
+    <div class="stage-content">
+      <div class="sec-heading">6 Classifiers · 10-Fold Stratified Cross-Validation · Class-Balanced</div>
+      <div class="model-row">
+        <div class="model-chip best">
+          <div class="mc-name">XGBoost</div>
+          <div class="mc-auc">AUC ~0.93</div>
+          <div class="mc-note">scale_pos_weight · n=300</div>
+        </div>
+        <div class="model-chip">
+          <div class="mc-name">Random Forest</div>
+          <div class="mc-auc">AUC ~0.92</div>
+          <div class="mc-note">balanced · sqrt features · n=300</div>
+        </div>
+        <div class="model-chip">
+          <div class="mc-name">LightGBM</div>
+          <div class="mc-auc">AUC ~0.92</div>
+          <div class="mc-note">num_leaves=63 · n=300</div>
+        </div>
+        <div class="model-chip">
+          <div class="mc-name">Extra Trees</div>
+          <div class="mc-auc">AUC ~0.91</div>
+          <div class="mc-note">balanced · n=300</div>
+        </div>
+        <div class="model-chip">
+          <div class="mc-name">Gradient Boost</div>
+          <div class="mc-auc">AUC ~0.90</div>
+          <div class="mc-note">subsample=0.8 · n=200</div>
+        </div>
+        <div class="model-chip">
+          <div class="mc-name">Logistic Reg.</div>
+          <div class="mc-auc">AUC ~0.87</div>
+          <div class="mc-note">balanced · StandardScaler</div>
+        </div>
+      </div>
+      <div style="margin-top:12px" class="card-wide">
+        <div class="card-wide-cell">
+          <div class="cell-label">Primary metric</div>
+          <div class="cell-value">AUC-ROC</div>
+          <div class="cell-sub">Out-of-fold OOF predictions</div>
+        </div>
+        <div class="card-wide-cell">
+          <div class="cell-label">Also tracked</div>
+          <div class="cell-value">MCC, F1, AUC-PR</div>
+          <div class="cell-sub">Balanced accuracy, precision, recall</div>
+        </div>
+        <div class="card-wide-cell">
+          <div class="cell-label">Ensemble</div>
+          <div class="cell-value">Majority Vote</div>
+          <div class="cell-sub">Mean probability across all 6 models</div>
+        </div>
+        <div class="card-wide-cell">
+          <div class="cell-label">Confidence Tier</div>
+          <div class="cell-value" style="font-size:11px">🟢🔵🟡🔴</div>
+          <div class="cell-sub">≥0.75 High · ≥0.50 Moderate · ≥0.25 Uncertain · &lt;0.25 BBB−</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="arrow-row"><div class="arrow-line"></div><div class="arrow-body"><span class="arrow-note">TreeExplainer</span></div></div>
+
+  <!-- ══════════════════════════════════════════
+       STAGE 5 — SHAP
+  ══════════════════════════════════════════ -->
+  <div class="stage">
+    <div class="stage-label">
+      <div class="stage-number">STAGE 5</div>
+      <div class="stage-name">SHAP<br>Explainability</div>
+    </div>
+    <div class="stage-content">
+      <div class="cards">
+        <div class="card teal">
+          <span class="card-icon">🔍</span>
+          <div class="card-title">SHAP TreeExplainer</div>
+          <ul class="card-items">
+            <li>Applied to RF, XGBoost, best model</li>
+            <li>500-compound random subsample</li>
+            <li>Mean |SHAP| per feature = global importance</li>
+            <li>Direction: ↑BBB+ or ↓BBB+ per feature</li>
+            <li>Beeswarm plots: feature × SHAP value × feature magnitude</li>
+          </ul>
+          <span class="card-badge badge-teal">model-agnostic attribution</span>
+        </div>
+        <div class="card blue">
+          <span class="card-icon">📌</span>
+          <div class="card-title">Key SHAP Findings</div>
+          <ul class="card-items">
+            <li><strong>TPSA</strong> — strongest negative predictor (↓ BBB+)</li>
+            <li><strong>LogP</strong> — moderate positive predictor (↑ BBB+)</li>
+            <li><strong>NHOHCount / HBD</strong> — H-bond donor penalty</li>
+            <li><strong>BBB Score / CNS MPO</strong> — composite positive signals</li>
+            <li><strong>MolMR / FractionCSP3</strong> — structural favourability</li>
+          </ul>
+          <span class="card-badge badge-blue">Gini importance cross-validated</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="arrow-row"><div class="arrow-line"></div><div class="arrow-body"><span class="arrow-note">rule-based PK framework</span></div></div>
+
+  <!-- ══════════════════════════════════════════
+       STAGE 6 — MECHANISTIC PK
+  ══════════════════════════════════════════ -->
+  <div class="stage">
+    <div class="stage-label">
+      <div class="stage-number">STAGE 6</div>
+      <div class="stage-name">Mechanistic<br>PK Decomposition</div>
+    </div>
+    <div class="stage-content">
+      <div class="tier-strip">
+        <div class="tier-cell">
+          <div class="tier-level">PATHWAY 1</div>
+          <div class="tier-title">P-gp Efflux Class</div>
+          <div class="tier-out">Low (NER~1.0) / Medium (NER~2.2) / High (NER~26.3)<br>Rule-based: MW, HBD, TPSA, LogP, amide count</div>
+        </div>
+        <div class="tier-cell">
+          <div class="tier-level">PATHWAY 2</div>
+          <div class="tier-title">fup (Plasma Unbound)</div>
+          <div class="tier-out">Lobell &amp; Sivarajah 2003 approximation<br>Driven by LogP, ionization class, MW</div>
+        </div>
+        <div class="tier-cell">
+          <div class="tier-level">PATHWAY 3</div>
+          <div class="tier-title">fubrain (Brain Unbound)</div>
+          <div class="tier-out">Fridén et al. 2010 model<br>Key driver: LogP (brain lipid binding)</div>
+        </div>
+        <div class="tier-cell">
+          <div class="tier-level">PATHWAY 4</div>
+          <div class="tier-title">Kp,brain</div>
+          <div class="tier-out">Rodgers &amp; Rowland 2006<br>Passive tissue partitioning estimate</div>
+        </div>
+      </div>
+      <div class="formula-box">
+        <div class="formula-title">Central PK Equation — J. Med. Chem. 2021 Tiered Framework</div>
+        <div class="formula-line">
+          <span class="formula-em">Kp,uu,brain</span>
+          <span class="formula-arrow">=</span>
+          <span>( Kp,brain / NER )</span>
+          <span class="formula-arrow">×</span>
+          <span>( fup / fubrain )</span>
+          <span class="formula-comment">&nbsp;&nbsp;// unbound brain-to-plasma partition</span>
+        </div>
+        <div class="formula-line" style="margin-top:6px;font-size:11px;color:var(--muted)">
+          <span>&gt; 1.0 = brain accumulation</span>
+          <span style="margin:0 12px">0.3–1.0 = good CNS exposure</span>
+          <span>0.1–0.3 = efflux-limited</span>
+          <span style="margin-left:12px">&lt; 0.1 = poor CNS exposure</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="arrow-row"><div class="arrow-line"></div><div class="arrow-body"><span class="arrow-note">ODE solver RK45</span></div></div>
+
+  <!-- ══════════════════════════════════════════
+       STAGE 7 — PBPK
+  ══════════════════════════════════════════ -->
+  <div class="stage">
+    <div class="stage-label">
+      <div class="stage-number">STAGE 7</div>
+      <div class="stage-name">PBPK<br>Simulation</div>
+    </div>
+    <div class="stage-content">
+      <div class="cards">
+        <div class="card orange" style="flex:2;min-width:280px">
+          <span class="card-icon">🧮</span>
+          <div class="card-title">2-Compartment ODE Model</div>
+          <ul class="card-items">
+            <li><strong>Compartments:</strong> Plasma ↔ Brain</li>
+            <li><strong>dCp/dt</strong> = −(CL_sys + CL_passive)/Vp × Cp + (CL_passive + CL_efflux)/Vp × Cb</li>
+            <li><strong>dCb/dt</strong> = (CL_passive/Vb) × Cp − (CL_passive + CL_efflux)/Vb × Cb</li>
+            <li><strong>Solver:</strong> SciPy solve_ivp, RK45, IV bolus 10 mg/kg</li>
+            <li><strong>CL_passive</strong> derived from LogP + TPSA (passive diffusion)</li>
+            <li><strong>CL_efflux</strong> = CL_passive × (NER−1) from P-gp class</li>
+          </ul>
+          <span class="card-badge badge-orange">t = 0 → 24h · 200 timepoints</span>
+        </div>
+        <div class="card pink" style="flex:1;min-width:180px">
+          <span class="card-icon">💊</span>
+          <div class="card-title">DDI Simulation</div>
+          <ul class="card-items">
+            <li><strong>Scenario 1:</strong> Normal (baseline)</li>
+            <li><strong>Scenario 2:</strong> P-gp inhibited 90%</li>
+            <li><strong>DDI Ratio:</strong> AUC_brain_inhibited / AUC_brain_normal</li>
+            <li>🔴 &gt;5× High risk</li>
+            <li>🟡 2–5× Moderate</li>
+            <li>🟢 &lt;2× Low risk</li>
+          </ul>
+          <span class="card-badge badge-pink">drug–drug interaction</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="arrow-row"><div class="arrow-line"></div><div class="arrow-body"><span class="arrow-note">decision rules applied</span></div></div>
+
+  <!-- ══════════════════════════════════════════
+       STAGE 8 — DECISION DASHBOARD
+  ══════════════════════════════════════════ -->
+  <div class="stage">
+    <div class="stage-label">
+      <div class="stage-number">STAGE 8</div>
+      <div class="stage-name">Integrated<br>Decision</div>
+    </div>
+    <div class="stage-content">
+      <div class="card-wide" style="margin-bottom:12px">
+        <div class="card-wide-cell">
+          <div class="cell-label">Rule 1</div>
+          <div class="cell-value" style="font-size:12px">TPSA &gt; 90 + LogP &lt; 1</div>
+          <div class="cell-sub">❌ Deprioritize CNS</div>
+        </div>
+        <div class="card-wide-cell">
+          <div class="cell-label">Rule 2</div>
+          <div class="cell-value" style="font-size:12px">P-gp = High</div>
+          <div class="cell-sub">❌ Kill or redesign</div>
+        </div>
+        <div class="card-wide-cell">
+          <div class="cell-label">Rule 3</div>
+          <div class="cell-value" style="font-size:12px">P-gp = Medium + BBB+ ≥0.5</div>
+          <div class="cell-sub">✅ Advance (acceptable efflux)</div>
+        </div>
+        <div class="card-wide-cell">
+          <div class="cell-label">Rule 4</div>
+          <div class="cell-value" style="font-size:12px">BBB+ prob ≥ 0.5</div>
+          <div class="cell-sub">✅ Advance</div>
+        </div>
+        <div class="card-wide-cell">
+          <div class="cell-label">Default</div>
+          <div class="cell-value" style="font-size:12px">None of above</div>
+          <div class="cell-sub">⚠️ Flag for investigation</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="arrow-row"><div class="arrow-line"></div><div class="arrow-body"><span class="arrow-note">Excel + PNG outputs</span></div></div>
+
+  <!-- ══════════════════════════════════════════
+       STAGE 9 — OUTPUT
+  ══════════════════════════════════════════ -->
+  <div class="stage">
+    <div class="stage-label">
+      <div class="stage-number">STAGE 9</div>
+      <div class="stage-name">Outputs</div>
+    </div>
+    <div class="stage-content">
+      <div class="output-grid">
+        <div class="output-item">
+          <div class="oi-icon">📊</div>
+          <div class="oi-text">
+            <div class="oi-name">Excel Report (9 sheets)</div>
+            <div class="oi-desc">Predictions, model stats, descriptor stats, feature selection, SHAP, PK, PBPK, training data, thresholds reference</div>
+          </div>
+        </div>
+        <div class="output-item">
+          <div class="oi-icon">📈</div>
+          <div class="oi-text">
+            <div class="oi-name">13 Publication Plots</div>
+            <div class="oi-desc">ROC/PR curves, confusion matrices, SHAP beeswarms, PBPK curves, decision dashboard, radar charts</div>
+          </div>
+        </div>
+        <div class="output-item">
+          <div class="oi-icon">🧬</div>
+          <div class="oi-text">
+            <div class="oi-name">BBB+ Probability + Class</div>
+            <div class="oi-desc">Per-compound: best model + ensemble vote + confidence tier (🟢🔵🟡🔴)</div>
+          </div>
+        </div>
+        <div class="output-item">
+          <div class="oi-icon">💊</div>
+          <div class="oi-text">
+            <div class="oi-name">PK Profile</div>
+            <div class="oi-desc">P-gp class, fup, fubrain, Kp,brain, Kp,uu,brain, CNS limitation classification</div>
+          </div>
+        </div>
+        <div class="output-item">
+          <div class="oi-icon">📉</div>
+          <div class="oi-text">
+            <div class="oi-name">PBPK Brain AUC</div>
+            <div class="oi-desc">Normal + P-gp inhibited AUC, Cmax,brain, DDI ratio, DDI risk classification</div>
+          </div>
+        </div>
+        <div class="output-item">
+          <div class="oi-icon">✅</div>
+          <div class="oi-text">
+            <div class="oi-name">Go / No-Go Decision</div>
+            <div class="oi-desc">Tiered L1 decision rule applied per compound: Advance / Deprioritize / Redesign / Flag</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       WHY EXCEPTIONAL
+  ══════════════════════════════════════════ -->
+  <div style="margin-top:40px;padding-top:32px;border-top:1px solid var(--border)">
+    <div style="text-align:center;margin-bottom:24px">
+      <div class="label" style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:4px;color:var(--accent3);text-transform:uppercase;margin-bottom:8px">Why This Pipeline Is Exceptional</div>
+      <div style="font-family:'EB Garamond',serif;font-size:22px;color:var(--white)">Beyond Classification — A Full CNS Drug Profiling System</div>
+    </div>
+    <div class="exceptional-grid">
+      <div class="exc-item">
+        <div class="exc-icon">🚫</div>
+        <div>
+          <div class="exc-title">Most Tools Stop at BBB+ / BBB−</div>
+          <div class="exc-desc">Standard predictors (pkCSM, SwissADME, admetSAR) give you a binary label and a probability score. That tells you <strong>if</strong> a drug gets into the brain — but not <strong>how much free drug</strong> actually reaches the target. This pipeline goes further with mechanistic PK to answer the real clinical question.</div>
+        </div>
+      </div>
+      <div class="exc-item">
+        <div class="exc-icon">🧬</div>
+        <div>
+          <div class="exc-title">Kp,uu,brain — The Right Metric</div>
+          <div class="exc-desc">A compound can be BBB+ (permeates the barrier) yet still fail CNS efficacy because P-gp pumps it out or it binds tightly to brain lipids. <strong>Kp,uu,brain</strong> captures the actual free drug exposure at the target site — the number that correlates with pharmacodynamic effect.</div>
+        </div>
+      </div>
+      <div class="exc-item">
+        <div class="exc-icon">⚡</div>
+        <div>
+          <div class="exc-title">P-gp Efflux Is Explicitly Modelled</div>
+          <div class="exc-desc">P-glycoprotein is the dominant active efflux transporter at the BBB responsible for failure of most CNS drugs. This pipeline <strong>classifies P-gp substrate risk</strong> (Low/Medium/High) using structural rules, calculates NER, and propagates it through both the PK framework and PBPK simulation.</div>
+        </div>
+      </div>
+      <div class="exc-item">
+        <div class="exc-icon">💊</div>
+        <div>
+          <div class="exc-title">DDI Simulation Is Unique</div>
+          <div class="exc-desc">No open-source BBB predictor simulates the <strong>drug–drug interaction scenario</strong> where a co-administered P-gp inhibitor (e.g. verapamil) raises brain exposure. This pipeline models 90% P-gp inhibition and reports the AUC ratio — a direct DDI safety signal.</div>
+        </div>
+      </div>
+      <div class="exc-item">
+        <div class="exc-icon">🔍</div>
+        <div>
+          <div class="exc-title">SHAP Makes It Interpretable</div>
+          <div class="exc-desc">Black-box predictions have no value in medicinal chemistry. SHAP attribution tells the chemist <strong>which structural feature is penalising BBB+</strong> (e.g. TPSA too high, too many H-bond donors) and exactly how much — enabling rational structure–activity relationship (SAR) guided redesign.</div>
+        </div>
+      </div>
+      <div class="exc-item">
+        <div class="exc-icon">📋</div>
+        <div>
+          <div class="exc-title">Go / No-Go Decision Automation</div>
+          <div class="exc-desc">The pipeline doesn't just output numbers — it applies <strong>literature-grounded decision rules</strong> (TPSA &gt; 90 + low LogP = deprioritize; high P-gp = kill) to produce an actionable tier per compound. This mirrors the decision logic used in real pharma CNS triage workflows.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- FIGURE CAPTION -->
+<div class="fig-caption">
+  <div class="fig-label">FIGURE 1</div>
+  <p>Schematic overview of the Blood-Brain Barrier Penetration Prediction Pipeline. Input SMILES are featurised using 64 RDKit descriptors across four classes (physicochemical, topological, electrostatic, binary). After a four-step feature selection protocol, six machine learning classifiers are trained under 10-fold stratified cross-validation on a merged training set combining the BBBP benchmark (Martins et al. 2012; MoleculeNet; DeepChem; ~2,050 compounds) and the B3DB curated database (Meng et al. 2021; ~7,800 compounds), deduplicated by canonical SMILES to yield the largest openly available BBB training corpus. SHAP TreeExplainer provides mechanistic attribution. Predicted BBB+ compounds are further profiled via rule-based P-gp efflux classification, plasma and brain unbound fractions, and Kp,uu,brain estimation (J. Med. Chem. 2021 framework). A two-compartment PBPK ODE model simulates brain concentration–time profiles under baseline and P-gp inhibition (DDI) scenarios. All results are exported to a nine-sheet colour-coded Excel report alongside 13 publication-quality plots.</p>
+</div>
+
+</body>
+</html>
